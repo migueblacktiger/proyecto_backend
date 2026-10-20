@@ -1,6 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
 import {
-  HTTP_METHODS,
   HttpMethod,
   PERMISSION_OPERATIONS,
   Permission,
@@ -54,8 +53,7 @@ function createInitialPermissions(): Permission[] {
       url: '',
       httpMethod: METHOD_BY_OPERATION[operation],
       model: seed.resource,
-      roleNames: [],
-      legacyAssigned: seed.assignments[index],
+      roleNames: seed.assignments[index] ? ['Administrador'] : [],
       icon: seed.icon
     }))
   );
@@ -68,7 +66,11 @@ export class PermissionDataService {
 
   readonly permissions = this.permissionState.asReadonly();
   readonly roles = this.roleState.asReadonly();
-  readonly legacyMatrixRows = computed<PermissionMatrixRow[]>(() => {
+  readonly legacyMatrixRows = computed<PermissionMatrixRow[]>(() =>
+    this.matrixRowsForRole('Administrador')
+  );
+
+  matrixRowsForRole(roleName: string): PermissionMatrixRow[] {
     const permissions = this.permissionState();
     const rows = new Map<string, PermissionMatrixRow>();
 
@@ -87,14 +89,21 @@ export class PermissionDataService {
       }
 
       const operationIndex = PERMISSION_OPERATIONS.indexOf(permission.operation);
-      row.values[operationIndex] = permission.legacyAssigned;
+      row.values[operationIndex] = permission.roleNames.includes(roleName);
     }
 
     return [...rows.values()];
-  });
+  }
 
   getPermission(id: string): Permission | undefined {
     return this.permissionState().find(permission => permission.id === id);
+  }
+
+  getPermissionsForRole(roleName: string): Permission[] {
+    if (!this.roleState().includes(roleName)) {
+      return [];
+    }
+    return this.permissionState().filter(permission => permission.roleNames.includes(roleName));
   }
 
   hasDuplicate(resource: string, operation: PermissionOperation, excludedId?: string): boolean {
@@ -119,7 +128,6 @@ export class PermissionDataService {
       ...draft,
       id: `PER-${String(nextNumber).padStart(3, '0')}`,
       roleNames: [],
-      legacyAssigned: false,
       icon: '⚿'
     };
 
@@ -155,7 +163,7 @@ export class PermissionDataService {
     };
   }
 
-  toggleLegacyAssignment(resource: string, operationIndex: number): void {
+  toggleLegacyAssignment(resource: string, operationIndex: number, roleName = 'Administrador'): void {
     const operation = PERMISSION_OPERATIONS[operationIndex];
     if (!operation) {
       throw new RangeError(`Unknown permission operation index: ${operationIndex}`);
@@ -169,16 +177,10 @@ export class PermissionDataService {
       throw new Error(`Permission "${resource} - ${operation}" is not in the catalog.`);
     }
 
-    this.permissionState.update(permissions =>
-      permissions.map(current =>
-        current.id === permission.id
-          ? { ...current, legacyAssigned: !current.legacyAssigned }
-          : current
-      )
-    );
+    this.togglePermissionForRole(permission.id, roleName);
   }
 
-  attachPermissionToRole(id: string, roleName: string): boolean {
+  assignPermissionToRole(id: string, roleName: string): boolean {
     const permission = this.getPermission(id);
     if (!permission || !this.roleState().includes(roleName) || permission.roleNames.includes(roleName)) {
       return false;
@@ -186,11 +188,71 @@ export class PermissionDataService {
 
     this.permissionState.update(permissions =>
       permissions.map(current =>
-        current.id === id
+        current.id === permission.id
           ? { ...current, roleNames: [...current.roleNames, roleName] }
           : current
       )
     );
     return true;
+  }
+
+  attachPermissionToRole(id: string, roleName: string): boolean {
+    return this.assignPermissionToRole(id, roleName);
+  }
+
+  removePermissionFromRole(id: string, roleName: string): boolean {
+    const permission = this.getPermission(id);
+    if (!permission || !this.roleState().includes(roleName) || !permission.roleNames.includes(roleName)) {
+      return false;
+    }
+
+    this.permissionState.update(permissions =>
+      permissions.map(current =>
+        current.id === id
+          ? { ...current, roleNames: current.roleNames.filter(name => name !== roleName) }
+          : current
+      )
+    );
+    return true;
+  }
+
+  replaceRolePermissions(roleName: string, permissionIds: readonly string[]): boolean {
+    if (!this.roleState().includes(roleName)) {
+      return false;
+    }
+
+    const availableIds = new Set(this.permissionState().map(permission => permission.id));
+    const selectedIds = new Set(permissionIds.filter(id => availableIds.has(id)));
+    this.permissionState.update(permissions =>
+      permissions.map(permission => {
+        const hasRole = permission.roleNames.includes(roleName);
+        const shouldHaveRole = selectedIds.has(permission.id);
+        if (hasRole === shouldHaveRole) {
+          return permission;
+        }
+
+        return {
+          ...permission,
+          roleNames: shouldHaveRole
+            ? [...new Set([...permission.roleNames, roleName])]
+            : permission.roleNames.filter(name => name !== roleName)
+        };
+      })
+    );
+    return true;
+  }
+
+  private togglePermissionForRole(id: string, roleName: string): void {
+    const permission = this.getPermission(id);
+    if (!permission) {
+      throw new Error(`Permission "${id}" is not in the catalog.`);
+    }
+
+    const update = permission.roleNames.includes(roleName)
+      ? this.removePermissionFromRole(id, roleName)
+      : this.assignPermissionToRole(id, roleName);
+    if (!update) {
+      throw new Error(`Permission "${id}" could not be updated for role "${roleName}".`);
+    }
   }
 }

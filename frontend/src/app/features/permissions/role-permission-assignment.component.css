@@ -1,0 +1,343 @@
+:host {
+  display: block;
+}
+
+.role-permission-page {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.role-assignment-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  margin-bottom: 17px;
+}
+
+.role-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: min(250px, 100%);
+}
+
+.role-select label {
+  color: #aebdcd;
+  font-size: 11px;
+}
+
+.role-select select {
+  height: 40px;
+  border: 1px solid #293e52;
+  border-radius: 7px;
+  padding: 0 12px;
+  background: #071422;
+  color: #e4edf6;
+}
+
+.selected-role-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 190px;
+  padding-left: 18px;
+  border-left: 1px solid #203448;
+}
+
+.role-avatar {
+  color: var(--green);
+  font-size: 17px;
+}
+
+.selected-role-summary small,
+.selected-role-summary b {
+  display: block;
+}
+
+.selected-role-summary small {
+  margin-bottom: 5px;
+  color: #8297ac;
+  font-size: 9px;
+}
+
+.selected-role-summary b {
+  color: #e4edf6;
+  font-size: 12px;
+}
+
+.assignment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.assignment-actions .btn:disabled {
+  cursor: not-allowed;
+  opacity: .48;
+  transform: none;
+  box-shadow: none;
+}
+
+.assignment-notice {
+  margin-bottom: 16px;
+  color: #d1e5ed;
+  font-size: 11px;
+}
+
+.assignment-matrix-panel {
+  overflow: hidden;
+}
+
+.assignment-matrix-heading {
+  padding: 20px 20px 0;
+}
+
+.assignment-matrix-heading h2 {
+  margin: 0 0 7px;
+  color: #e7f0f9;
+  font-size: 16px;
+}
+
+.assignment-matrix-heading p {
+  margin: 0;
+  color: #91a5b9;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.assignment-matrix-scroll {
+  overflow-x: auto;
+  padding: 0 12px;
+}
+
+.assignment-matrix {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.assignment-matrix th {
+  padding: 13px 10px;
+  border-bottom: 1px solid #294056;
+  color: #94a9bd;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.assignment-matrix th.resource-heading {
+  width: 36%;
+  text-align: left;
+}
+
+.assignment-matrix td {
+  height: 43px;
+  border-bottom: 1px solid #1c3043;
+  color: #c8d4df;
+  font-size: 11px;
+}
+
+.assignment-matrix tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.assignment-matrix .module-row td {
+  height: 34px;
+  padding: 0 11px;
+  background: #0a1927;
+  color: #8fa5b8;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-align: left;
+}
+
+.module-row span {
+  margin-right: 8px;
+  color: var(--green);
+}
+
+.resource-cell {
+  display: table-cell;
+  text-align: left;
+}
+
+.resource-cell > span:not(.resource-icon) {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.resource-cell b,
+.resource-cell small {
+  display: block;
+}
+
+.resource-cell b {
+  color: #dfe9f3;
+  font-size: 11px;
+}
+
+.resource-cell small {
+  margin-top: 3px;
+  color: #8297ac;
+  font-size: 9px;
+}
+
+.permission-check {
+  display: inline-grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.permission-check input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.permission-check span {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 1px solid #41566a;
+  border-radius: 4px;
+  background: #071422;
+  transition: .15s ease;
+}
+
+.permission-check input:checked + span {
+  border-color: var(--green);
+  background: var(--green-dark);
+  box-shadow: 0 0 11px #54f05d24;
+}
+
+.permission-check input:checked + span::after {
+  width: 4px;
+  height: 8px;
+  border: solid var(--green);
+  border-width: 0 2px 2px 0;
+  content: '';
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.permission-check input:focus-visible + span {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+.permission-unavailable {
+  color: #526679;
+  font-size: 12px;
+}
+
+.assignment-empty {
+  padding: 38px 20px;
+}
+
+.assignment-empty h2 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.assignment-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.assignment-matrix-panel .matrix-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #1c3043;
+  padding: 13px 18px;
+  color: #879bb0;
+  font-size: 10px;
+}
+
+.assignment-matrix-panel .matrix-footer span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #b9cad8;
+}
+
+.assignment-matrix-panel .matrix-footer i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px #54f05d70;
+}
+
+.assignment-footnote {
+  margin-top: 16px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.assignment-toast {
+  max-width: min(520px, calc(100vw - 35px));
+}
+
+@media (max-width: 900px) {
+  .role-assignment-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .selected-role-summary {
+    min-height: 45px;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .assignment-actions {
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .role-assignment-toolbar {
+    padding: 13px;
+  }
+
+  .role-select {
+    min-width: 0;
+  }
+
+  .assignment-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .assignment-actions .btn {
+    width: 100%;
+  }
+
+  .assignment-matrix-heading {
+    padding: 15px 12px 0;
+  }
+
+  .assignment-matrix-scroll {
+    padding: 0 7px;
+  }
+
+  .assignment-matrix-panel .matrix-footer {
+    flex-direction: column;
+    padding: 12px;
+    font-size: 9px;
+  }
+}

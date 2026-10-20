@@ -14,11 +14,12 @@ Prototipo frontend para una plataforma de gestión de competencias deportivas. I
 5. Abre la URL local que indique Angular CLI (normalmente `http://localhost:4200`).
 
 ## Rutas de demostración
-La navegación se realiza desde el menú lateral. Angular Router gestiona `/dashboard`, `/permissions` y `/role-permissions`; las demás vistas existentes conservan temporalmente la navegación demostrativa original. `/permissions` permite consultar y administrar el catálogo simulado; `/role-permissions` sigue siendo una pantalla de preparación. La opción **Seguridad (DEV)** mantiene el módulo administrativo existente y su matriz simulada.
+La navegación se realiza desde el menú lateral. Angular Router gestiona `/dashboard`, `/permissions` y `/role-permissions`; las demás vistas existentes conservan temporalmente la navegación demostrativa original. `/permissions` permite consultar y administrar el catálogo simulado; `/role-permissions` permite asignar y retirar esos permisos a los roles existentes. La opción **Seguridad (DEV)** mantiene el módulo administrativo existente y su matriz simulada.
 
 ## Alcance y conexión al backend
 - Todo el comportamiento actual utiliza datos en memoria para permitir probar la interfaz.
-- El catálogo de permisos y los roles de demostración se centralizan en `PermissionDataService`; la matriz anterior de **Seguridad (DEV)** se deriva del mismo catálogo.
+- El catálogo de permisos y los roles de demostración se centralizan en `PermissionDataService`; las matrices de asignación y **Seguridad (DEV)** se derivan del mismo catálogo y de sus asociaciones por rol.
+- La matriz de `/role-permissions` mantiene sus cambios pendientes en el componente y actualiza las asociaciones `roleNames` compartidas solo al guardar. El estado guardado permanece en el servicio durante la sesión; el rol Administrador conserva las asignaciones iniciales que mostraba la matriz anterior.
 - Las URL iniciales del catálogo no están definidas y se muestran como “Sin definir”; no representan endpoints reales. Los permisos creados y sus cambios se conservan mientras la aplicación siga abierta, no después de recargarla.
 - Al eliminar un permiso asociado en la simulación, se elimina el permiso y su asociación, pero no el rol. Las reglas definitivas de eliminación se validarán al integrar el backend.
 - Los formularios de login/registro, OAuth, recuperación y guardado muestran mensajes de demostración; no autentican usuarios ni persisten datos.
@@ -30,6 +31,6 @@ La navegación se realiza desde el menú lateral. Angular Router gestiona `/dash
 - `src/app/app.component.ts` y `src/app/app.component.html`: estado y vistas de demostración que todavía no se han migrado.
 - `src/app/layout/`: menú lateral y barra superior reutilizables.
 - `src/app/features/dashboard/`: Dashboard actual y sus acciones de navegación.
-- `src/app/features/permissions/`: gestión del catálogo simulado, modelos compartidos y pantalla preparatoria para asignar permisos.
+- `src/app/features/permissions/`: gestión del catálogo simulado, modelos compartidos y asignación de permisos a roles.
 - `src/main.ts`: rutas de Angular Router.
 - `src/styles.css`: sistema visual responsive oscuro con acentos cian/verde.

@@ -21,7 +21,6 @@ export interface Permission {
   httpMethod: HttpMethod;
   model: string;
   roleNames: string[];
-  legacyAssigned: boolean;
   icon: string;
 }
 
@@ -35,6 +34,15 @@ export interface PermissionMatrixRow {
   icon: string;
   group: string;
   values: boolean[];
+}
+
+export type PermissionMatrixCells = Partial<Record<PermissionOperation, Permission>>;
+
+export interface RolePermissionMatrixRow {
+  module: string;
+  resource: string;
+  icon: string;
+  permissions: PermissionMatrixCells;
 }
 
 export interface PermissionDeleteResult {

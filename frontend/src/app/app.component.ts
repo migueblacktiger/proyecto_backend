@@ -64,7 +64,7 @@ export class AppComponent {
     this.syncPageWithRoute(this.router.url);
   }
   get roles():string[]{return this.permissionData.roles();}
-  get permissions():PermissionMatrixRow[]{return this.permissionData.legacyMatrixRows();}
+  get permissions():PermissionMatrixRow[]{return this.permissionData.matrixRowsForRole(this.roleSelected);}
   get filteredSports(){return this.sports.filter(s=>(s.name.toLowerCase().includes(this.search.toLowerCase())||s.category.toLowerCase().includes(this.search.toLowerCase()))&&(this.statusFilter==='Todos'||s.status===this.statusFilter));}
   get currentSport(){return this.sports[this.selectedSport] ?? this.sports[0];}
   get assignedCount(){return this.permissions.reduce((n,p)=>n+p.values.filter(Boolean).length,0);}
@@ -124,7 +124,7 @@ export class AppComponent {
   saveSport(){if(!this.sportForm.name.trim()||!this.sportForm.category){this.showToast('Completa el nombre y la categoría del deporte.');return;}const duplicate=this.sports.some((s,i)=>s.name.toLowerCase()===this.sportForm.name.trim().toLowerCase()&&(!this.editingSport||i!==this.selectedSport));if(duplicate){this.showToast('Ya existe un deporte con ese nombre.');return;}if(this.editingSport)this.sports[this.selectedSport]={...this.sportForm};else{this.sports.push({...this.sportForm});this.selectedSport=this.sports.length-1;}this.modal=false;this.showToast('Deporte guardado correctamente.');}
   deleteSport(index:number){const s=this.sports[index];if(s.teams>0){this.showToast(`No se puede eliminar «${s.name}» porque tiene equipos asociados.`);return;}if(confirm(`¿Eliminar el deporte ${s.name}?`)){this.sports.splice(index,1);this.selectedSport=0;this.showToast('Deporte eliminado.');}}
   selectSport(s:Sport){this.selectedSport=this.sports.indexOf(s);}
-  togglePermission(row:PermissionMatrixRow,index:number){this.permissionData.toggleLegacyAssignment(row.name,index);}
+  togglePermission(row:PermissionMatrixRow,index:number){this.permissionData.toggleLegacyAssignment(row.name,index,this.roleSelected);}
   savePermissions(){this.showToast(`Permisos de ${this.roleSelected} guardados correctamente.`);}
   resetPermissions(){if(confirm('¿Restablecer la matriz de permisos a su último estado guardado?'))this.showToast('La matriz se ha restablecido.');}
   showToast(message:string){this.toast=message;setTimeout(()=>{if(this.toast===message)this.toast='';},3500);}

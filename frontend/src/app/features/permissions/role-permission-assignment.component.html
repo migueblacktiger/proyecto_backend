@@ -1,8 +1,110 @@
-<section class="placeholder-page">
-  <span class="eyebrow">CENTRO DE CONTROL · SEGURIDAD</span>
-  <h1>Asignar permisos a roles</h1>
-  <div class="placeholder-panel panel">
-    <h3>Funcionalidad en desarrollo</h3>
-    <p>Esta pantalla se preparará para asignar permisos a los roles registrados.</p>
+<section class="role-permission-page">
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">CENTRO DE CONTROL · SEGURIDAD</span>
+      <h1>Asignar permisos a roles</h1>
+      <p>Configura las operaciones que puede realizar cada rol dentro de SportManager.</p>
+    </div>
+    <span class="admin-chip">♢ MODO DEMOSTRACIÓN</span>
+  </div>
+
+  <section class="panel role-assignment-toolbar" aria-label="Seleccionar rol">
+    <div class="role-select">
+      <label for="assignment-role">Rol seleccionado</label>
+      <select
+        id="assignment-role"
+        name="assignmentRole"
+        [value]="selectedRole()"
+        (change)="selectRole($event)">
+        <option *ngFor="let role of roles()" [value]="role">{{role}}</option>
+      </select>
+    </div>
+    <div class="selected-role-summary">
+      <span class="avatar role-avatar">♙</span>
+      <span><small>Configurando permisos para</small><b>{{selectedRole() || 'Sin roles disponibles'}}</b></span>
+    </div>
+    <div class="assignment-actions">
+      <button
+        class="btn btn-outline"
+        type="button"
+        [disabled]="!hasPendingChanges()"
+        (click)="cancelChanges()">Cancelar cambios</button>
+      <button
+        class="btn btn-primary"
+        type="button"
+        [disabled]="!hasPendingChanges()"
+        (click)="saveChanges()">▣ Guardar cambios</button>
+    </div>
+  </section>
+
+  <div class="inline-notice info assignment-notice" *ngIf="hasPendingChanges()">
+    <span>ⓘ</span> Hay cambios pendientes. Guárdalos para aplicar las asignaciones al rol.
+  </div>
+
+  <section class="panel assignment-matrix-panel">
+    <div class="panel-heading assignment-matrix-heading">
+      <div>
+        <h2>Matriz de permisos</h2>
+        <p>Marca únicamente operaciones que ya existan en el catálogo de permisos.</p>
+      </div>
+      <span class="total-chip">{{assignedCount()}} asignados</span>
+    </div>
+
+    <div class="assignment-matrix-scroll" *ngIf="matrixRows().length">
+      <table class="assignment-matrix">
+        <thead>
+          <tr>
+            <th class="resource-heading">Recurso o módulo</th>
+            <th *ngFor="let operation of operations">{{operation}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let group of matrixGroups()">
+            <tr class="module-row">
+              <td [attr.colspan]="operations.length + 1"><span>⌄</span>{{group.module}}</td>
+            </tr>
+            <tr *ngFor="let row of group.rows">
+              <td class="resource-cell">
+                <span class="resource-icon">{{row.icon}}</span>
+                <span><b>{{row.resource}}</b><small>{{row.module}}</small></span>
+              </td>
+              <td *ngFor="let operation of operations">
+                <ng-container *ngIf="row.permissions[operation] as permission; else unavailable">
+                  <label class="permission-check" [attr.title]="permission.url || (permission.resource + ' · ' + permission.operation + ' (' + permission.httpMethod + ')')">
+                    <input
+                      type="checkbox"
+                      [attr.aria-label]="row.resource + ' - ' + operation"
+                      [checked]="isSelected(permission.id)"
+                      (change)="togglePermission(permission, $event)">
+                    <span></span>
+                  </label>
+                </ng-container>
+                <ng-template #unavailable><span class="permission-unavailable" aria-label="Operación no disponible">—</span></ng-template>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="assignment-empty empty-state" *ngIf="!matrixRows().length">
+      <span class="permission-empty-icon">⚿</span>
+      <h2>No hay permisos en el catálogo</h2>
+      <p>Registra permisos en Gestión de permisos para que puedan asignarse a los roles.</p>
+    </div>
+
+    <div class="matrix-footer" *ngIf="matrixRows().length">
+      <span><i class="green-dot"></i> {{assignedCount()}} permisos seleccionados para {{selectedRole()}}</span>
+      <span>Los permisos no disponibles en el catálogo no se pueden asignar.</span>
+    </div>
+  </section>
+
+  <div class="inline-notice info assignment-footnote">
+    <span>ⓘ</span>
+    Las asignaciones se conservan durante esta sesión de demostración. Retirar un permiso de un rol no elimina el permiso del catálogo ni el rol.
   </div>
 </section>
+
+<div class="toast assignment-toast" *ngIf="toast" role="status">
+  <span>ⓘ</span>{{toast}}<button type="button" aria-label="Cerrar mensaje" (click)="toast=''">×</button>
+</div>
