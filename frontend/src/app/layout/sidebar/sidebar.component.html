@@ -1,0 +1,16 @@
+<aside class="sidebar" [class.mobile-open]="mobileMenu">
+  <button class="brand" (click)="navigate.emit('home')"><span class="brand-mark">⚽</span><span><b><i>SPORT</i>MANAGER</b><small>PLATAFORMA DEPORTIVA</small></span></button>
+  <nav class="main-nav">
+    <div class="nav-label">PLATAFORMA</div>
+    <button [class.active]="page==='dashboard'||page==='home'" (click)="navigate.emit('dashboard')"><span>⌂</span> Dashboard</button>
+    <button [class.active]="page==='sports'" (click)="navigate.emit('sports')"><span>⚽</span> Deportes</button>
+    <button [class.active]="page==='teams'" (click)="navigate.emit('teams')"><span>♧</span> Equipos</button>
+    <button [class.active]="page==='players'" (click)="navigate.emit('players')"><span>♙</span> Jugadores</button>
+    <button [class.active]="page==='permission-management'" (click)="navigate.emit('permission-management')"><span>⚿</span> Gestión de permisos</button>
+    <button [class.active]="page==='role-permission-assignment'||page==='role-permissions'" (click)="navigate.emit('role-permission-assignment')"><span>▦</span> Asignar permisos a roles</button>
+    <button [class.active]="page==='profile'" (click)="navigate.emit('profile')"><span>☆</span> Perfil deportivo</button>
+    <div class="nav-label admin-label">ADMINISTRACIÓN</div>
+    <button [class.active]="isAdminPage()" (click)="openAdmin.emit()"><span>♢</span> Seguridad <span class="dev-tag">DEV</span></button>
+  </nav>
+  <div class="sidebar-bottom"><div class="season"><span class="green-dot"></span><div><small>Temporada activa</small><b>2026</b></div><span class="chevron">⌄</span></div><div class="session"><span class="avatar small-avatar">CA</span><div><b>Carlos Admin</b><small>{{adminMode?'Administrador del sistema':'Modo de demostración'}}</small></div><span class="online-dot"></span></div></div>
+</aside>

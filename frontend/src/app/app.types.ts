@@ -1,0 +1,16 @@
+export type Page =
+  | 'home'
+  | 'login'
+  | 'register'
+  | 'forgot'
+  | 'dashboard'
+  | 'sports'
+  | 'teams'
+  | 'players'
+  | 'profile'
+  | 'users'
+  | 'roles'
+  | 'permissions'
+  | 'role-permissions'
+  | 'permission-management'
+  | 'role-permission-assignment';

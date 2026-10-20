@@ -1,0 +1,171 @@
+<section class="permission-page">
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">CENTRO DE CONTROL · SEGURIDAD</span>
+      <h1>Gestión de permisos</h1>
+      <p>Administra los permisos y las operaciones disponibles en SportManager.</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="openCreate()">＋ Nuevo permiso</button>
+  </div>
+
+  <div class="toolbar permission-toolbar">
+    <label class="search-box">
+      <span aria-hidden="true">⌕</span>
+      <input [(ngModel)]="search" name="permissionSearch" placeholder="Buscar por recurso, operación o URL" aria-label="Buscar permisos">
+    </label>
+    <label class="resource-filter">
+      <span>Recurso o módulo</span>
+      <select [(ngModel)]="resourceFilter" name="resourceFilter" aria-label="Filtrar por recurso o módulo">
+        <option value="Todos">Todos los recursos</option>
+        <option *ngFor="let resource of resources()" [value]="resource">{{resource}}</option>
+      </select>
+    </label>
+    <span class="toolbar-count">{{filteredPermissions.length}} de {{permissions().length}} permisos</span>
+  </div>
+
+  <div class="panel list-panel permission-list-panel">
+    <div class="permission-table-wrap" *ngIf="filteredPermissions.length">
+      <table class="permission-table-list">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Recurso o módulo</th>
+            <th>Operación</th>
+            <th>URL</th>
+            <th>Método HTTP</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let permission of filteredPermissions">
+            <td><span class="id-tag">{{permission.id}}</span></td>
+            <td>
+              <span class="permission-resource">
+                <span class="resource-icon">{{permission.icon}}</span>
+                <span><b>{{permission.resource}}</b><small>{{permission.module}}</small></span>
+              </span>
+            </td>
+            <td><span class="permission-operation">{{permission.operation}}</span></td>
+            <td class="permission-url">{{permission.url || 'Sin definir'}}</td>
+            <td><code class="http-method" [class.method-delete]="permission.httpMethod==='DELETE'">{{permission.httpMethod}}</code></td>
+            <td>
+              <div class="action-buttons permission-actions">
+                <button type="button" title="Consultar detalle" aria-label="Consultar detalle" (click)="viewDetails(permission)">⌕</button>
+                <button type="button" title="Editar permiso" aria-label="Editar permiso" (click)="openEdit(permission)">✎</button>
+                <button type="button" class="danger" title="Eliminar permiso" aria-label="Eliminar permiso" (click)="requestDelete(permission)">♲</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="permission-empty empty-state" *ngIf="!permissions().length">
+      <span class="permission-empty-icon">⚿</span>
+      <h2>No hay permisos registrados</h2>
+      <p>Registra el primer permiso para comenzar a configurar el catálogo de SportManager.</p>
+      <button class="btn btn-primary" type="button" (click)="openCreate()">＋ Nuevo permiso</button>
+    </div>
+    <div class="permission-empty empty-state" *ngIf="permissions().length && !filteredPermissions.length">
+      <span class="permission-empty-icon">⌕</span>
+      <h2>No se encontraron permisos</h2>
+      <p>Prueba con otro término de búsqueda o cambia el filtro de recurso.</p>
+      <button class="btn btn-outline" type="button" (click)="search='';resourceFilter='Todos'">Limpiar filtros</button>
+    </div>
+  </div>
+
+  <div class="permission-note inline-notice info">
+    <span>ⓘ</span>
+    Los datos son simulados. Las URL de los permisos iniciales no están definidas; las reglas definitivas para eliminarlos se validarán al integrar el backend.
+  </div>
+</section>
+
+<div class="modal-backdrop" *ngIf="formMode" (click)="closeForm()">
+  <section class="modal-card permission-modal" role="dialog" aria-modal="true" aria-labelledby="permission-form-title" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div>
+        <span class="eyebrow">CATÁLOGO DE PERMISOS</span>
+        <h2 id="permission-form-title">{{formMode==='edit'?'Editar permiso':'Nuevo permiso'}}</h2>
+      </div>
+      <button class="close-button" type="button" aria-label="Cerrar" (click)="closeForm()">×</button>
+    </div>
+
+    <form #permissionForm="ngForm" (ngSubmit)="savePermission(permissionForm)" novalidate>
+      <div class="form-grid permission-form-grid">
+        <div class="form-field">
+          <label for="permission-resource">Recurso o módulo <b>*</b></label>
+          <input id="permission-resource" name="resource" [(ngModel)]="draft.resource" #resource="ngModel" required maxlength="80" placeholder="Ej. Deportes">
+          <small class="field-error" *ngIf="submitted && resource.invalid">Ingresa el recurso o módulo.</small>
+        </div>
+        <div class="form-field">
+          <label for="permission-operation">Operación autorizada <b>*</b></label>
+          <select id="permission-operation" name="operation" [ngModel]="draft.operation" (ngModelChange)="operationChanged($event)" required>
+            <option *ngFor="let operation of operations" [value]="operation">{{operation}}</option>
+          </select>
+        </div>
+        <div class="form-field full-field">
+          <label for="permission-url">URL <b>*</b></label>
+          <input id="permission-url" name="url" [(ngModel)]="draft.url" #url="ngModel" required maxlength="240" placeholder="Ej. /api/deportes">
+          <small class="field-error" *ngIf="submitted && url.invalid">Ingresa la URL asociada al permiso.</small>
+        </div>
+        <div class="form-field">
+          <label for="permission-method">Método HTTP <b>*</b></label>
+          <select id="permission-method" name="httpMethod" [ngModel]="draft.httpMethod" (ngModelChange)="methodChanged($event)" required>
+            <option *ngFor="let method of httpMethods" [value]="method">{{method}}</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="permission-model">Modelo o recurso <b>*</b></label>
+          <input id="permission-model" name="model" [(ngModel)]="draft.model" #model="ngModel" required maxlength="80" placeholder="Ej. Deporte">
+          <small class="field-error" *ngIf="submitted && model.invalid">Ingresa el modelo o recurso correspondiente.</small>
+        </div>
+      </div>
+      <div class="form-error inline-notice" *ngIf="formError" role="alert">{{formError}}</div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" type="button" (click)="closeForm()">Cancelar</button>
+        <button class="btn btn-primary" type="submit">▣ Guardar permiso</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<div class="modal-backdrop" *ngIf="detailPermission as permission" (click)="closeDetails()">
+  <section class="modal-card permission-modal permission-detail-modal" role="dialog" aria-modal="true" aria-labelledby="permission-detail-title" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><span class="eyebrow">CATÁLOGO DE PERMISOS</span><h2 id="permission-detail-title">Detalle del permiso</h2></div>
+      <button class="close-button" type="button" aria-label="Cerrar" (click)="closeDetails()">×</button>
+    </div>
+    <div class="permission-detail-id"><span class="green-dot"></span>{{permission.id}}<span class="permission-operation">{{permission.operation}}</span></div>
+    <dl class="permission-detail-grid">
+      <div><dt>Recurso</dt><dd>{{permission.resource}}</dd></div>
+      <div><dt>Módulo</dt><dd>{{permission.module}}</dd></div>
+      <div><dt>URL</dt><dd>{{permission.url || 'Sin definir'}}</dd></div>
+      <div><dt>Método HTTP</dt><dd><code class="http-method">{{permission.httpMethod}}</code></dd></div>
+      <div><dt>Modelo o recurso</dt><dd>{{permission.model}}</dd></div>
+      <div><dt>Roles asociados</dt><dd>{{permission.roleNames.length ? permission.roleNames.join(', ') : 'Sin asociaciones en la simulación'}}</dd></div>
+    </dl>
+    <div class="modal-actions">
+      <button class="btn btn-outline" type="button" (click)="closeDetails()">Cerrar</button>
+      <button class="btn btn-primary" type="button" (click)="closeDetails();openEdit(permission)">✎ Editar permiso</button>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" *ngIf="deletingPermission as permission" (click)="cancelDelete()">
+  <section class="modal-card permission-modal permission-confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="permission-delete-title" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><span class="eyebrow">CONFIRMAR ACCIÓN</span><h2 id="permission-delete-title">Eliminar permiso</h2></div>
+      <button class="close-button" type="button" aria-label="Cerrar" (click)="cancelDelete()">×</button>
+    </div>
+    <p>¿Deseas eliminar <b>{{permission.resource}} · {{permission.operation}}</b> ({{permission.id}}) del catálogo?</p>
+    <p class="muted" *ngIf="permission.roleNames.length">Se quitará la asociación de este permiso con {{permission.roleNames.length}} rol(es); los roles permanecerán registrados.</p>
+    <p class="muted" *ngIf="!permission.roleNames.length">Esta acción no eliminará los roles existentes. Las reglas definitivas de eliminación se validarán con el backend.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" type="button" (click)="cancelDelete()">Cancelar</button>
+      <button class="btn btn-primary permission-delete-button" type="button" (click)="confirmDelete()">Eliminar permiso</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast permission-toast" *ngIf="toast" role="status">
+  <span>ⓘ</span>{{toast}}<button type="button" aria-label="Cerrar mensaje" (click)="toast=''">×</button>
+</div>

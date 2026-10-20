@@ -14,16 +14,22 @@ Prototipo frontend para una plataforma de gestión de competencias deportivas. I
 5. Abre la URL local que indique Angular CLI (normalmente `http://localhost:4200`).
 
 ## Rutas de demostración
-La navegación se realiza desde el menú lateral. La opción **Seguridad (DEV)** abre el módulo administrativo sin mezclar su matriz de permisos con las pantallas deportivas generales. La vista de asignación también está enlazada desde **Roles y permisos**.
+La navegación se realiza desde el menú lateral. Angular Router gestiona `/dashboard`, `/permissions` y `/role-permissions`; las demás vistas existentes conservan temporalmente la navegación demostrativa original. `/permissions` permite consultar y administrar el catálogo simulado; `/role-permissions` sigue siendo una pantalla de preparación. La opción **Seguridad (DEV)** mantiene el módulo administrativo existente y su matriz simulada.
 
 ## Alcance y conexión al backend
 - Todo el comportamiento actual utiliza datos en memoria para permitir probar la interfaz.
+- El catálogo de permisos y los roles de demostración se centralizan en `PermissionDataService`; la matriz anterior de **Seguridad (DEV)** se deriva del mismo catálogo.
+- Las URL iniciales del catálogo no están definidas y se muestran como “Sin definir”; no representan endpoints reales. Los permisos creados y sus cambios se conservan mientras la aplicación siga abierta, no después de recargarla.
+- Al eliminar un permiso asociado en la simulación, se elimina el permiso y su asociación, pero no el rol. Las reglas definitivas de eliminación se validarán al integrar el backend.
 - Los formularios de login/registro, OAuth, recuperación y guardado muestran mensajes de demostración; no autentican usuarios ni persisten datos.
 - No incluye backend, base de datos, endpoints, tokens reales ni protección de rutas del servidor.
 - Antes de producción, reemplazar datos simulados por servicios Angular `HttpClient`, configurar las URLs de API, implementar guards/interceptors según el contrato del backend y validar autorización también en el servidor.
 - La entrada `Seguridad (DEV)` está visible intencionalmente durante el desarrollo. Ocultarla según rol y proteger las rutas cuando exista autenticación real.
 
 ## Estructura
-- `src/app/app.component.ts`: datos de demostración y acciones de UI.
-- `src/app/app.component.html`: vistas y formularios.
+- `src/app/app.component.ts` y `src/app/app.component.html`: estado y vistas de demostración que todavía no se han migrado.
+- `src/app/layout/`: menú lateral y barra superior reutilizables.
+- `src/app/features/dashboard/`: Dashboard actual y sus acciones de navegación.
+- `src/app/features/permissions/`: gestión del catálogo simulado, modelos compartidos y pantalla preparatoria para asignar permisos.
+- `src/main.ts`: rutas de Angular Router.
 - `src/styles.css`: sistema visual responsive oscuro con acentos cian/verde.
